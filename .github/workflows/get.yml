@@ -99,4 +99,4 @@ jobs:
           tag_name: "${{ env.month }}"
           target_commitish: main
           files: |
-            "${{ env.today_db }}"
+            ${{ env.today_db }}
