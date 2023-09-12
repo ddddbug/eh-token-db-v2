@@ -1,6 +1,5 @@
 name: get
 on:
-  push:
   schedule:
     - cron: "0,30 * * * *"
 
@@ -80,6 +79,7 @@ jobs:
       - name: release db to latest
         uses: softprops/action-gh-release@v1
         with:
+          
           body_path: body.txt
           tag_name: "latest"
           target_commitish: main
