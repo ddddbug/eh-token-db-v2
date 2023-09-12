@@ -4,7 +4,7 @@ A proposed successor to [eh-token-db](https://github.com/ddddbug/eh-token-db).
 
 ## Motivation
 
-The previous implementation commits the SQL binary file via git every 30 minutes. Consequently, the computing power to commit the binary file repeatedly grows rapidly with regard to the size of the binary file and the number of repeats. After running for 19 months and committing over 24k times, the old workflow now needs about 28 minutes to complete, and its fail rate recently spikes to 50%. It won't be long before the previous workflow completely stops running thus it's wasting too much time and computing power.
+The previous implementation commits the SQL binary file via git every 30 minutes. Consequently, the computing power to repeatedly commit the binary file grows rapidly with regard to the size of the binary file and the number of repeats. After running for 19 months and committing over 24k times, the old workflow now needs about 28 minutes to complete, and its fail rate recently spikes to 50%. It won't be long before the previous workflow completely stops running thus it's wasting too much time and computing power.
 
 Time to move forward!
 
