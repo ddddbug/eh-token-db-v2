@@ -71,7 +71,7 @@ jobs:
           message: "${{ env.messages }}"
           add: '["data.txt"]'
 
-      - name: Run latest-tag
+      - name: update latest tag
         uses: EndBug/latest-tag@latest
 
       - name: release db to latest
@@ -91,6 +91,11 @@ jobs:
           echo $today_db
           mv db.sqlite3 $today_db
           ls -l
+
+      - name: update month tag
+        uses: EndBug/latest-tag@latest
+        with:
+          ref: ${{ env.month }}
 
       - name: release db to month
         uses: softprops/action-gh-release@v1
