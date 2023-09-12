@@ -1,0 +1,51 @@
+name: release
+on:
+  schedule:
+    - cron: "20 0 * * 1"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fetch all tags
+        run: |
+          git fetch --prune --unshallow --tags
+          git tag --list
+
+      - uses: robinraju/release-downloader@v1.8
+        with:
+          repository: ${{ github.repository }}
+          tag: "latest"
+          fileName: "db.sqlite3"
+
+      - name: Compute the release tag for yesterday and test if tag exists
+        run: |
+          tag=v`date -d "yesterday" '+%Y.%m.%d'`
+          echo "tag=$tag" >> $GITHUB_ENV
+          if [[ -n "`git tag -l $tag`" ]]; then
+              echo "tag_existed=true" >> $GITHUB_ENV
+              echo $tag exists
+          else
+              echo "tag_existed=false" >> $GITHUB_ENV
+              echo $tag does not exist!
+          fi
+          sqlite3 db.sqlite3 .dump > dump.sql
+          count=`sqlite3 db.sqlite3 < count.sql`
+          echo \# `date -d "yesterday" +%Y-%m-%d` >> body.txt
+          echo >> body.txt
+          echo $count records in total. >> body.txt
+          cat body.txt
+
+      - name: release
+        if: ${{ env.tag_existed == 'true' }}
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: body.txt
+          tag_name: ${{ env.tag }}
+          target_commitish: main
+          files: |
+            dump.sql
+            db.sqlite3

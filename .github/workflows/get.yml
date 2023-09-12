@@ -1,0 +1,86 @@
+name: get
+on:
+  schedule:
+    - cron: "0,30 * * * *"
+
+jobs:
+  run:
+    name: get
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: deps
+        run: |
+          sudo apt update && sudo apt install -y curl sqlite3
+
+      - uses: robinraju/release-downloader@v1.8
+        with:
+          repository: ${{ github.repository }}
+          tag: "latest"
+          fileName: "db.sqlite3"
+      
+      - name: fetch
+        run: |
+          curl "https://xml.e-hentai.org/ehg.xml" -o raw
+
+      - name: process
+        run: |
+          cat raw | grep -P -o "https?://e[-x]hentai.org/g/(\d+)/(\w+)/" | cut -d "/" -f 5,6 | sort -n | uniq | tee data
+          printf "INSERT OR IGNORE INTO gallery values" >> insert.sql
+          cat data | sed -E 's/(.*)\/(.*)/(\1,"\2"),/' >> insert.sql
+          tail -n 1 data | sed -E 's/(.*)\/(.*)/(\1,"\2");/' >> insert.sql
+          before=`sqlite3 db.sqlite3 < count.sql`
+          sqlite3 db.sqlite3 < insert.sql
+          after=`sqlite3 db.sqlite3 < count.sql`
+          messages="auto-commit: $((after-before)) new galleries added at `date`"
+          echo "messages=$messages"
+          echo "messages=$messages" >> $GITHUB_ENV
+          diff -N data.txt data || true
+          mv data data.txt
+
+      - name: dump sql
+        run: |
+          sqlite3 db.sqlite3 .dump > dump.sql
+      
+      - name: prepare release message
+        run: |
+          count=`sqlite3 db.sqlite3 < count.sql`
+          echo \# `date +%Y-%m-%d` >> body.txt
+          echo >> body.txt
+          echo $count records in total. >> body.txt
+          cat body.txt
+
+      - name: upload sql
+        uses: actions/upload-artifact@v3
+        with:
+          name: dump.sql
+          path: dump.sql
+
+      - name: upload db
+        uses: actions/upload-artifact@v3
+        with:
+          name: db.sqlite3
+          path: db.sqlite3
+
+      - name: tag
+        run: |
+          echo "tag=v`date '+%Y.%m.%d'`" >> $GITHUB_ENV
+
+      - name: commit
+        uses: EndBug/add-and-commit@v7
+        with:
+          message: "${{ env.messages }}"
+          add: '["data.txt"]'
+          tag: "${{ env.tag }} --force"
+
+      - name: release db to latest
+        if: ${{ env.tag_existed == 'true' }}
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: body.txt
+          tag_name: "latest"
+          target_commitish: main
+          files: |
+            db.sqlite3
