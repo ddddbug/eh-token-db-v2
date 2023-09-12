@@ -74,7 +74,7 @@ jobs:
         with:
           message: "${{ env.messages }}"
           add: '["data.txt"]'
-          tag: "${{ env.tag }} --force"
+          tag: "${{ env.tag }} latest --force"
 
       - name: release db to latest
         uses: softprops/action-gh-release@v1
