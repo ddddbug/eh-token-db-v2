@@ -88,7 +88,9 @@ jobs:
           echo "month=v`date '+%Y.%m'`" >> $GITHUB_ENV
           echo "today_db=db-`date '+%Y-%m-%d'`.sqlite3" >> $GITHUB_ENV
           today_db="db-`date '+%Y-%m-%d'`.sqlite3"
+          echo $today_db
           mv db.sqlite3 $today_db
+          ls -l
 
       - name: release db to month
         uses: softprops/action-gh-release@v1
