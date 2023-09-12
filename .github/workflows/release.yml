@@ -24,11 +24,11 @@ jobs:
 
       - name: compute the release tag for yesterday
         run: |
-          tag=v`date -d "yesterday" '+%Y.%m.%d'`
+          tag=v`date '+%Y.%m.%d'`
           echo "tag=$tag" >> $GITHUB_ENV
           sqlite3 db.sqlite3 .dump > dump.sql
           count=`sqlite3 db.sqlite3 < count.sql`
-          echo \# `date -d "yesterday" +%Y-%m-%d` >> body.txt
+          echo \# `date '+%Y-%m-%d'` >> body.txt
           echo >> body.txt
           echo $count records in total. >> body.txt
           cat body.txt
