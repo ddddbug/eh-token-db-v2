@@ -15,7 +15,7 @@ jobs:
         run: |
           sudo apt update && sudo apt install -y curl sqlite3
 
-      - uses: robinraju/release-downloader@v1.8
+      - uses: robinraju/release-downloader@v1.9
         with:
           repository: ${{ github.repository }}
           tag: "latest"
@@ -53,13 +53,13 @@ jobs:
           cat body.txt
 
       - name: upload sql
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dump.sql
           path: dump.sql
 
       - name: upload db
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: db.sqlite3
           path: db.sqlite3

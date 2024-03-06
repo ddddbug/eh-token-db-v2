@@ -15,7 +15,7 @@ jobs:
           sparse-checkout-cone-mode: false
 
       - name: download latest release
-        uses: robinraju/release-downloader@v1.8
+        uses: robinraju/release-downloader@v1.9
         with:
           repository: ${{ github.repository }}
           tag: "latest"
